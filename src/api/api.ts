@@ -9,7 +9,7 @@ const SC_Code = 'F10';
 const SCHOOL_CODE = '7380292';
 const baseUrl = 'https://open.neis.go.kr/hub/mealServiceDietInfo';
 
-class MealDataFetcher {
+export class MealDataFetcher {
   cachedData: AllMeals;
   constructor(cache: AllMeals) {
     this.cachedData = cache;
