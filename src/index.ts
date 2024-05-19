@@ -28,5 +28,5 @@ app.listen(port, () => {
 });
 
 app.addListener('close', () => {
-  fs.writeFileSync('cache/cacheData.json', JSON.stringify(data));
+  fs.writeFileSync('cache/cacheData.json', JSON.stringify(dataFetcher.cachedData));
 });

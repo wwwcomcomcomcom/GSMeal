@@ -11,10 +11,31 @@ const baseUrl = 'https://open.neis.go.kr/hub/mealServiceDietInfo';
 
 export class MealDataFetcher {
   cachedData: AllMeals;
+
+  static emptyMonthlyInfo(): MonthlyMealInfo {
+    return {
+      year: 0,
+      month: 0,
+      mealInfo: []
+    }
+  }
+
   constructor(cache: AllMeals) {
     this.cachedData = cache;
   }
   getMealInfo(date: string): ParsedMealInfo | undefined {
+    //try to find the mealInfo in the cache
+    const cachedMealInfo = this.findMealInfo(date);
+    if(cachedMealInfo !== undefined) return cachedMealInfo;
+
+
+    //if the mealInfo is not in the cache, fetch the data from the server
+    this.cacheMealInfo(date.substring(0, 6));
+    return this.findMealInfo(date);
+
+  }
+
+  findMealInfo(date: string): ParsedMealInfo | undefined {
     const month = date.substring(0, 6);
     if (month in this.cachedData) {
       return this.cachedData[month].mealInfo.find((mealInfo) => {
@@ -22,39 +43,27 @@ export class MealDataFetcher {
       });
     }
   }
-  getMealInfoByMonth(month: string): ParsedMealInfo[] | undefined {
-    if (month in this.cachedData) {
-      return this.cachedData[month].mealInfo;
-    }
-    
-  }
   
-  async cacheMealInfo(month: string): Promise<MonthlyMealInfo> {
+  async cacheMealInfo(month: string) {
     const mealInfo = await this.fetchMealInfo(month);
+    if(mealInfo.mealInfo.length === 0) return;
     this.cachedData[month] = mealInfo;
-    return mealInfo;
   }
 
   async fetchMealInfo(month: string): Promise<MonthlyMealInfo> {
     const apiUrl = `${baseUrl}?ATPT_OFCDC_SC_CODE=${SC_Code}&SD_SCHUL_CODE=${SCHOOL_CODE}&MLSV_YMD=${month}&Type=json&KEY=${API_KEY}`;
     const fetchData = await fetch(apiUrl);
     const response = await fetchData.json();
-    if (!isDataValid(response)) {
-      throw new FailedToFetchData(response, apiUrl);
+    if (!MealDataFetcher.isDataValid(response)) {
+      // throw new FailedToFetchData(response, apiUrl);
+      return MealDataFetcher.emptyMonthlyInfo();
     }
     const parsedData = parseMealInfo(response);
     return parsedData;
   }
-}
 
-function findMealInfo(mealInfo:ParsedMealInfo[], date:string):ParsedMealInfo|undefined{
-  for (const meal of mealInfo) {
-    if (meal.date === date) {
-      return meal;
-    }
+  static isDataValid(object:any):object is ApiData{
+    return 'mealServiceDietInfo' in object;
   }
-}
 
-function isDataValid(object:any):object is ApiData{
-  return 'mealServiceDietInfo' in object;
 }
