@@ -17,9 +17,13 @@ const data:AllMeals = JSON.parse(fs.readFileSync('cache/cacheData.json', 'utf-8'
 const dataFetcher = new MealDataFetcher(data);
 
 app.get('/', async (req, res) => {
-  const today = new SimpleDate().formatDate();
-  const mealInfo = await dataFetcher.getMealInfo(today);
-  if(mealInfo === undefined) res.send('No data found');
+
+  let date =  req.query.date !== undefined ? req.query.date.toString() : new SimpleDate().formatDate();
+  const mealInfo = await dataFetcher.getMealInfo(date);
+  if(mealInfo === undefined){
+    res.send('No data found');
+    return;
+  }
   console.dir(mealInfo);
   res.send(mealInfo);
 });
