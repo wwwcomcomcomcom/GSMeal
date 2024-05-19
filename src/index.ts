@@ -1,8 +1,6 @@
 import express from 'express';
 import fs from 'fs';
-import path from 'path';
 import { SimpleDate } from './date';
-import { ApiData } from './api/apiType';
 import { MonthlyMealInfo } from './api/parsedType';
 import { MealDataFetcher } from './api/api';
 
@@ -20,7 +18,7 @@ app.get('/', async (req, res) => {
 
   let date =  req.query.date !== undefined ? req.query.date.toString() : new SimpleDate().formatDate();
   const mealInfo = await dataFetcher.getMealInfo(date);
-  if(mealInfo === undefined){
+  if(mealInfo.length === 0){
     res.send('No data found');
     return;
   }
@@ -30,8 +28,4 @@ app.get('/', async (req, res) => {
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
-});
-
-app.addListener('close', () => {
-  fs.writeFileSync('cache/cacheData.json', JSON.stringify(dataFetcher.cachedData));
 });
