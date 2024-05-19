@@ -23,14 +23,14 @@ export class MealDataFetcher {
   constructor(cache: AllMeals) {
     this.cachedData = cache;
   }
-  getMealInfo(date: string): ParsedMealInfo | undefined {
+  async getMealInfo(date: string): Promise<ParsedMealInfo | undefined> {
     //try to find the mealInfo in the cache
     const cachedMealInfo = this.findMealInfo(date);
     if(cachedMealInfo !== undefined) return cachedMealInfo;
 
 
     //if the mealInfo is not in the cache, fetch the data from the server
-    this.cacheMealInfo(date.substring(0, 6));
+    await this.cacheMealInfo(date.substring(0, 6));
     return this.findMealInfo(date);
 
   }
@@ -52,6 +52,9 @@ export class MealDataFetcher {
 
   async fetchMealInfo(month: string): Promise<MonthlyMealInfo> {
     const apiUrl = `${baseUrl}?ATPT_OFCDC_SC_CODE=${SC_Code}&SD_SCHUL_CODE=${SCHOOL_CODE}&MLSV_YMD=${month}&Type=json&KEY=${API_KEY}`;
+
+    console.log("call api");
+
     const fetchData = await fetch(apiUrl);
     const response = await fetchData.json();
     if (!MealDataFetcher.isDataValid(response)) {
