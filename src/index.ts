@@ -19,6 +19,7 @@ const dataFetcher = new MealDataFetcher(data);
 app.get('/', async (req, res) => {
   const today = new SimpleDate().formatDate();
   const mealInfo = await dataFetcher.getMealInfo(today);
+  if(mealInfo === undefined) res.send('No data found');
   console.dir(mealInfo);
   res.send(mealInfo);
 });
