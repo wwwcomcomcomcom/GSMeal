@@ -11,7 +11,7 @@ export class SimpleDate {
   }
 
   formatDate():string{
-    return `${this.year}${this.month}${this.day}`;
+    return `${this.year}${this.month.toString().padStart(2, '0')}${this.day.toString().padStart(2, '0')}`;
   }
   formatWithoutDate():string{
     return `${this.year}${this.month.toString().padStart(2, '0')}`;
